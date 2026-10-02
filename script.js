@@ -75,12 +75,13 @@
     update();
   }
 
-  // Skills rows: on touch screens (no hover) the row crossing the middle of the screen fills in.
+  // Touch screens (no hover): whatever crosses the middle of the screen gets its hover look —
+  // skills rows fill in, work screenshots turn to color; they revert once scrolled past.
   if (window.matchMedia('(hover: none)').matches) {
-    const rowSpy = new IntersectionObserver((entries) => {
+    const centerSpy = new IntersectionObserver((entries) => {
       entries.forEach((en) => en.target.classList.toggle('is-active', en.isIntersecting));
     }, { rootMargin: '-45% 0px -45% 0px' });
-    document.querySelectorAll('.stack__row').forEach((r) => rowSpy.observe(r));
+    document.querySelectorAll('.stack__row, .card').forEach((el) => centerSpy.observe(el));
   }
 
   // Testimonials: split quotes into words for the outline-to-ink fill, then cycle slides.

@@ -190,6 +190,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .card__img span { font: 700 64px/1 var(--font-display); color: transparent; -webkit-text-stroke: 1px var(--stroke); }
 .card:hover .card__img { transform: translateY(-4px); }
 .card:hover .card__img img { transform: scale(1.04); filter: grayscale(0); }
+.card.is-active .card__img img { filter: grayscale(0); } /* touch: card in the middle of the screen (script.js) */
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .tags li { font-size: 13px; font-weight: 600; border: 1px solid var(--ink); border-radius: 100px; padding: 2px 12px; color: var(--ink); }
 
