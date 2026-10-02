@@ -9,6 +9,8 @@
   --tint: #f6f6f4;
   --muted: #777;
   --line: rgba(0, 0, 0, 0.12);
+  --footer-bg: #f9f9f9;
+  --dots: #b5b5b5;
 
   --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
@@ -120,9 +122,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   isolation: isolate;
 }
 .hero__portrait { order: 2; width: min(100%, 440px); margin-top: 32px; }
-.hero__portrait img { width: 100%; height: auto; }
+/* The JPEG's background is ~253 with compression speckle; a small lift turns it pure white so no box shows. */
+.hero__portrait img { width: 100%; height: auto; filter: brightness(1.05) contrast(1.05); }
 .hero__portrait.is-empty { display: none; }
-.hero__title { font-size: clamp(48px, 15vw, 88px); line-height: 1.5; display: flex; flex-direction: column; }
+/* Tighter line-height below desktop: the title wraps on phones and 1.5 leaves big gaps. */
+.hero__title { font-size: clamp(44px, 13vw, 88px); line-height: 1.15; display: flex; flex-direction: column; }
 /* Both lines are outlined by default; each fills on its own hover only. */
 .hero__word {
   display: block; width: fit-content; align-self: center;
@@ -141,7 +145,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
     min-height: 100svh; padding: 0 var(--gutter) 48px;
   }
   .hero__text { display: contents; } /* lets title lines and portrait share one stacking order */
-  .hero__title { position: absolute; top: var(--title-top); left: 0; right: 0; align-items: center; }
+  .hero__title { position: absolute; top: var(--title-top); left: 0; right: 0; align-items: center; line-height: 1.5; }
   .hero__word { position: relative; z-index: 0; }
   .hero__word--front { z-index: 2; }
   .hero__portrait {
@@ -150,7 +154,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
     height: max(420px, calc(100svh - var(--title-top) - 40px - 150px));
   }
   .hero__portrait img {
-    height: 100%; width: auto; max-width: none;
+    height: 100%; width: auto; max-width: none; filter: none;
     transform-origin: 50% 100%; /* grows up and out from the bottom edge */
     transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -168,19 +172,26 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .sub { font-size: 32px; margin: 40px 0 16px; }
 
 /* Work */
-.cards { display: grid; gap: 32px; grid-template-columns: 1fr; }
-.card h3 { font-size: 30px; margin: 16px 0 6px; }
+.cards { display: grid; gap: 40px 28px; grid-template-columns: 1fr; }
+.card > p, .card__body > p { font-size: 16px; line-height: 1.55; margin-bottom: 14px; }
+.card h3 { font-size: 28px; margin: 2px 0 8px; }
+.card__kicker { margin: 16px 0 0 !important; font-size: 12px !important; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .card__img {
-  aspect-ratio: 4 / 3; background: var(--tint); border: 2px solid var(--black); border-radius: 4.48px;
   display: grid; place-items: center; overflow: hidden;
+  aspect-ratio: 16 / 10; background: var(--tint); border: 2px solid var(--black); border-radius: 4.48px;
   transition: transform 0.35s;
 }
-.card__img span { font: 700 72px/1 var(--font-display); color: transparent; -webkit-text-stroke: 1px var(--stroke); }
+/* Screenshots sit in black & white to match the site; hovering the card brings back the color. */
+.card__img img {
+  width: 100%; height: 100%; object-fit: cover; object-position: left top; /* wider shots lose the right edge, never the logo */
+  filter: grayscale(1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s;
+}
+.card__img span { font: 700 64px/1 var(--font-display); color: transparent; -webkit-text-stroke: 1px var(--stroke); }
 .card:hover .card__img { transform: translateY(-4px); }
+.card:hover .card__img img { transform: scale(1.04); filter: grayscale(0); }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .tags li { font-size: 13px; font-weight: 600; border: 1px solid var(--ink); border-radius: 100px; padding: 2px 12px; color: var(--ink); }
-.card__link { font-weight: 600; color: var(--ink); text-decoration: none; background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 3px no-repeat; transition: background-size 0.35s; }
-.card__link:hover { background-size: 100% 3px; }
 
 /* About */
 .about { display: grid; gap: 8px; }
@@ -188,7 +199,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
 .facts li { border-top: 2px solid var(--black); padding-top: 10px; }
 .facts strong { display: block; font: 700 32px/1.1 var(--font-display); color: var(--ink); }
-.facts span { font-size: 14px; }
+.facts span { display: block; font-size: 14px; line-height: 1.4; }
+.about__aside .section__title { margin-bottom: 24px; } /* stacked on mobile: keep heading close to the text */
 /* Journey: a track that fills with scroll (--progress set in script.js), years fill as each step is reached. */
 .journey { position: relative; padding-left: 36px; --progress: 0; }
 .journey::before, .journey::after {
@@ -264,17 +276,18 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 /* Tapes: black and blue marquee bands crossing in opposite directions.
    The black band uses multiply blending: black stays black and its white letters show whatever is underneath.
    Over the page they read as white; where they pass over the blue band they turn see-through and show blue. */
-.tapes { position: relative; height: 200px; margin-top: 64px; overflow: hidden; background: var(--bg); isolation: isolate; }
+/* Steeper tilt on narrow screens: at 3° over a phone's width the bands barely separate and read as one smudge. */
+.tapes { --tilt-ink: -7deg; --tilt-accent: 6deg; position: relative; height: 180px; margin-top: 64px; overflow: hidden; background: var(--bg); isolation: isolate; }
 .tape {
-  position: absolute; left: -5%; width: 110%; top: 50%;
-  padding: 10px 0; overflow: hidden;
+  position: absolute; left: -10%; width: 120%; top: 50%;
+  padding: 8px 0; overflow: hidden;
 }
-.tape--ink { background: var(--ink); transform: translateY(-50%) rotate(-3deg); z-index: 1; mix-blend-mode: multiply; }
-.tape--accent { background: var(--accent); transform: translateY(-50%) rotate(2.5deg); }
+.tape--ink { background: var(--ink); transform: translateY(-50%) rotate(var(--tilt-ink)); z-index: 1; mix-blend-mode: multiply; }
+.tape--accent { background: var(--accent); transform: translateY(-50%) rotate(var(--tilt-accent)); }
 .tape__track { display: flex; width: max-content; animation: marquee 40s linear infinite; }
 .tape--accent .tape__track { animation-direction: reverse; animation-duration: 70s; }
 .tape__track span {
-  font: 700 clamp(32px, 6vw, 48px)/1.2 var(--font-display); text-transform: uppercase; letter-spacing: 0.02em;
+  font: 700 clamp(26px, 6vw, 48px)/1.2 var(--font-display); text-transform: uppercase; letter-spacing: 0.02em;
   color: var(--bg); white-space: nowrap; display: inline-flex; align-items: center;
 }
 .tape__track span::after { content: "✦"; font-size: 0.5em; margin: 0 28px; }
@@ -294,12 +307,66 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
 /* Clients */
-.logos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 48px; }
-.logos li { border: 2px solid var(--black); border-radius: 4.48px; padding: 24px 12px; text-align: center; font: 700 24px/1.1 var(--font-display); color: var(--ink); background: var(--bg); }
-.quotes { display: grid; gap: 24px; }
-.quote { margin: 0; padding: 24px; background: var(--bg); border-left: 4px solid var(--accent); }
-.quote p { font-size: 20px; color: var(--ink); }
-.quote footer { font-weight: 600; font-size: 14px; }
+/* Inactive slides wait 64px off to the side; clip (not hidden) so they never widen the page and sticky still works. */
+#clients { overflow-x: hidden; overflow-x: clip; } /* hidden = fallback for Safari < 16 */
+/* Testimonials: one big quote at a time; words fill from outline to ink in sequence (spans + --i added by script.js). */
+/* Top padding scales with the quote mark's size so the mark never overlaps the first line at any width. */
+.testi { --mark: clamp(220px, 34vw, 380px); position: relative; padding-top: calc(var(--mark) * 0.42 - 20px); }
+.testi__mark {
+  position: absolute; top: -40px; left: -8px; z-index: 0; pointer-events: none;
+  font: 700 var(--mark)/1 var(--font-display);
+  color: transparent; -webkit-text-stroke: 2px var(--accent);
+}
+.testi__slides { position: relative; z-index: 1; display: grid; }
+.testi__slide { margin: 0; }
+.testi__slide + .testi__slide { margin-top: 48px; } /* no-JS: slides simply stack */
+.testi__slide blockquote { margin: 0; }
+.testi__slide p {
+  margin: 0; max-width: 22ch;
+  font: 700 clamp(32px, 5vw, 60px)/1.12 var(--font-display); color: var(--ink);
+}
+.testi__slide figcaption { display: flex; align-items: center; gap: 14px; margin-top: 32px; font-size: 15px; }
+.testi__slide figcaption strong { display: block; color: var(--ink); font-weight: 600; font-size: 17px; }
+.testi__avatar {
+  flex: none; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--black);
+  display: grid; place-items: center; font: 700 20px/1 var(--font-display); color: var(--ink); background: var(--bg);
+}
+
+/* Slide motion: incoming enters from the right, outgoing exits left (flipped when going back with .is-back). */
+.js .testi__slide {
+  grid-area: 1 / 1; margin: 0; visibility: hidden; opacity: 0;
+  transform: translateX(64px);
+  transition: opacity 0.5s, visibility 0.5s, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.js .testi__slide.is-active { visibility: visible; opacity: 1; transform: none; }
+.js .testi__slide.is-leaving { transform: translateX(-64px); }
+.js .testi.is-back .testi__slide:not(.is-active):not(.is-leaving) { transform: translateX(-64px); }
+.js .testi.is-back .testi__slide.is-leaving { transform: translateX(64px); }
+.js .testi__slide .w {
+  color: transparent; -webkit-text-stroke: 1px var(--stroke);
+  transition: color 0.45s; transition-delay: 0s;
+}
+.js .testi__slide.is-active .w { color: var(--ink); transition-delay: calc(var(--i) * 25ms + 100ms); }
+.js .testi__slide figcaption { transform: translateY(12px); transition: transform 0.5s 0.3s; }
+.js .testi__slide.is-active figcaption { transform: none; }
+
+.testi__nav { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; margin-top: 48px; }
+.testi__count { font-weight: 600; font-size: 15px; color: var(--muted); min-width: 72px; }
+.testi__count b { font: 700 28px/1 var(--font-display); color: var(--ink); }
+.testi__bar { flex: 1; height: 2px; background: var(--line); overflow: hidden; margin-right: 12px; }
+.testi__bar i { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+.testi__bar i.is-running { animation: testi-bar var(--testi-delay, 3s) linear forwards; } /* autoplay interval */
+.testi:hover .testi__bar i, .testi:focus-within .testi__bar i { animation-play-state: paused; }
+@keyframes testi-bar { to { transform: scaleX(1); } }
+.testi__btn {
+  flex: none; width: 48px; height: 48px; display: grid; place-items: center; cursor: pointer;
+  background: var(--bg); color: var(--ink); border: 2px solid var(--black); border-radius: 4.48px;
+  transition: background-color 0.3s, color 0.3s;
+}
+.testi__btn:hover { background: var(--ink); color: var(--bg); }
+.testi__btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: square; }
+.testi__btn--prev svg { transform: scaleX(-1); }
+html:not(.js) .testi__nav { display: none; }
 
 /* Contact */
 .contact { text-align: center; padding-block: 24px; }
@@ -308,22 +375,37 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .contact__links { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 24px; }
 .contact__meta { font-size: 15px; }
 
-/* Footer (placeholder) */
-.footer { background: var(--ink); color: var(--bg); padding: 28px 0; font-size: 15px; }
-.footer__inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+/* Footer: light band, sparse dotted rule on top, logo left, "Connect:" links right. */
+.footer { background: var(--footer-bg); padding: 56px 0 64px; }
+.footer__dots {
+  height: 2px; margin-bottom: 36px;
+  background: radial-gradient(circle, var(--dots) 1px, transparent 1.2px) 0 50% / 12px 2px repeat-x;
+}
+.footer__inner { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.footer__logo { font-size: 40px; }
+.footer__connect { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; }
+.footer__label { flex-basis: 100%; font-weight: 600; font-size: 17.76px; color: var(--ink); } /* own line on phones */
+.footer__link {
+  font-weight: 400; font-size: 17.76px; color: var(--ink); text-decoration: none;
+  background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 2px no-repeat;
+  transition: background-size 0.35s;
+}
+.footer__link:hover { background-size: 100% 2px; }
 
 /* ===== Reveal ===== */
 .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s; }
 .js .reveal.is-visible { opacity: 1; transform: none; }
 
 /* ===== Tablet / desktop ===== */
+@media (min-width: 640px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+}
 @media (min-width: 768px) {
-  .cards, .quotes { grid-template-columns: repeat(2, 1fr); }
-  .logos { grid-template-columns: repeat(4, 1fr); }
   .journey__step { display: grid; grid-template-columns: 170px 1fr; gap: 24px; align-items: start; }
   .journey__body { padding-top: 10px; }
   .journey__step::before { top: 32px; }
   .journey__body h4 { margin-top: 0; }
+  .tapes { --tilt-ink: -4.5deg; --tilt-accent: 4deg; height: 200px; } /* tablets: between phone and desktop tilt */
 }
 @media (min-width: 1024px) {
   :root { --gutter: 67px; --nav-h: 84px; }
@@ -343,6 +425,16 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .about__photo { display: block; max-width: 360px; }
   .about__photo img { width: 100%; height: auto; filter: grayscale(1); }
   .stack__row { grid-template-columns: 64px 1fr auto; padding: 28px 24px; }
+  .cards { gap: 56px 40px; } /* 2 × 2 grid (columns set at 640px) */
+  .footer__inner { flex-direction: row; align-items: center; justify-content: space-between; }
+  .footer__connect { gap: 36px; }
+  .footer__label { flex-basis: auto; }
+  .tapes { --tilt-ink: -3deg; --tilt-accent: 2.5deg; }
+  .tape { left: -5%; width: 110%; padding: 10px 0; }
+  .about__aside .section__title { margin-bottom: 40px; }
+  .footer { padding: 72px 0 88px; }
+  .footer__logo { font-size: 48px; }
+  .footer__dots { margin-bottom: 48px; }
   .stack__tools { grid-column: 3; justify-content: flex-end; max-width: 420px; }
   .tapes { height: 240px; margin-top: 96px; }
   .wrap { padding: 0 67px; }

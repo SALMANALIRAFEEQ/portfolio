@@ -83,6 +83,60 @@
     document.querySelectorAll('.stack__row').forEach((r) => rowSpy.observe(r));
   }
 
+  // Testimonials: split quotes into words for the outline-to-ink fill, then cycle slides.
+  // The progress bar's CSS animation drives autoplay: it pauses on hover/focus, and reduced motion disables it.
+  const testi = document.getElementById('testi');
+  if (testi) {
+    const slides = [...testi.querySelectorAll('.testi__slide')];
+    const count = testi.querySelector('.testi__count b');
+    const bar = testi.querySelector('.testi__bar i');
+    let current = -1;
+    testi.querySelector('.testi__total').textContent = String(slides.length).padStart(2, '0');
+
+    slides.forEach((s) => {
+      const p = s.querySelector('p');
+      const words = p.textContent.trim().split(/\s+/);
+      p.textContent = '';
+      words.forEach((word, i) => {
+        const w = document.createElement('span');
+        w.className = 'w';
+        w.style.setProperty('--i', i);
+        w.textContent = word;
+        p.append(w, i < words.length - 1 ? ' ' : '');
+      });
+    });
+
+    const restartBar = () => {
+      bar.classList.remove('is-running');
+      void bar.offsetWidth; // reflow so the animation starts over
+      bar.classList.add('is-running');
+    };
+    // Every call restarts the 3s timer, so pressing a button resets the countdown.
+    // After the last slide it wraps to the first with the same forward slide.
+    const show = (i, back = false) => {
+      const prev = current;
+      current = (i + slides.length) % slides.length;
+      testi.classList.toggle('is-back', back);
+      void testi.offsetWidth; // place the incoming slide on the correct side before it animates in
+      slides.forEach((s, n) => {
+        s.classList.toggle('is-active', n === current);
+        s.classList.toggle('is-leaving', n === prev && prev !== current);
+        s.setAttribute('aria-hidden', String(n !== current));
+      });
+      count.textContent = String(current + 1).padStart(2, '0');
+      restartBar();
+    };
+
+    testi.querySelector('.testi__btn--prev').addEventListener('click', () => show(current - 1, true));
+    testi.querySelector('.testi__btn:not(.testi__btn--prev)').addEventListener('click', () => show(current + 1));
+    bar.addEventListener('animationend', () => show(current + 1));
+    // Start (and play the first word fill) only once the section is on screen.
+    const startObs = new IntersectionObserver(([en]) => {
+      if (en.isIntersecting) { show(0); startObs.disconnect(); }
+    }, { threshold: 0.3 });
+    startObs.observe(testi);
+  }
+
   // Email buttons: Gmail compose in a new tab on desktop; phones keep mailto so the mail app opens.
   const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   document.querySelectorAll('.js-email').forEach((a) => {
@@ -94,5 +148,4 @@
     });
   });
 
-  document.getElementById('year').textContent = new Date().getFullYear();
 })();
