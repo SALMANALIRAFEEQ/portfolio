@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salman Ali Rafeeq — Web Developer & Automation Expert</title>
+  <meta name="description" content="Salman Ali Rafeeq is a web developer from Lahore building e-commerce sites and automations with WordPress, Shopify and Webflow.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="preloader" aria-hidden="true"><span class="preloader__mark">SAR<i></i></span></div>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <a class="nav__logo" href="#hero" aria-label="Salman Ali Rafeeq — home">SAR<i></i></a>
+    <button class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
+      <span></span><span></span>
+    </button>
+    <nav class="nav__menu" id="menu" aria-label="Main">
+      <a class="nav__link" href="#work">Work</a>
+      <a class="nav__link" href="#about">About</a>
+      <a class="nav__link" href="#skills">Skills</a>
+      <a class="nav__link" href="#clients">Clients</a>
+      <!-- CONTENT: nav email button (opens Gmail compose on desktop, mail app on phones) -->
+      <a class="btn btn--primary nav__cta js-email" href="mailto:salmanalirafeeq123@gmail.com">Let’s talk</a>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="hero">
+      <div class="hero__portrait">
+        <!-- ASSET: desktop = transparent cutout (overlaps the headline), mobile = JPEG on white (sits below the text) -->
+        <picture>
+          <source media="(min-width: 1024px)" srcset="assets/salman-trans.png" width="433" height="577">
+          <img src="assets/salman.jpeg" alt="Portrait of Salman Ali Rafeeq" width="1086" height="1448" fetchpriority="high" onerror="this.closest('.hero__portrait').classList.add('is-empty')">
+        </picture>
+      </div>
+      <div class="hero__text">
+        <!-- CONTENT: hero -->
+        <h1 class="hero__title">
+          <span class="hero__word hero__word--back">Web Developer</span>
+          <span class="hero__word hero__word--front">&amp; Automation Expert</span>
+        </h1>
+        <p class="hero__tagline">Building e-commerce sites and automations, from Lahore.</p>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#work">View my work</a>
+          <a class="btn btn--ghost" href="#contact">Get in touch</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WORK ============ -->
+    <section class="section" id="work">
+      <div class="wrap">
+        <p class="eyebrow reveal">Selected work</p>
+        <h2 class="section__title reveal">Work</h2>
+        <!-- CONTENT: projects (placeholders) -->
+        <div class="cards">
+          <article class="card reveal">
+            <div class="card__img" role="img" aria-label="Project 1 screenshot placeholder"><span>01</span></div>
+            <h3>E-commerce store</h3>
+            <p>A Shopify storefront built for conversion and easy inventory handling.</p>
+            <ul class="tags"><li>Shopify</li><li>Liquid</li><li>SEO</li></ul>
+            <a class="card__link" href="#">View project →</a>
+          </article>
+          <article class="card reveal">
+            <div class="card__img" role="img" aria-label="Project 2 screenshot placeholder"><span>02</span></div>
+            <h3>Company website</h3>
+            <p>A fast, editable WordPress site with technical and on-page SEO.</p>
+            <ul class="tags"><li>WordPress</li><li>PHP</li><li>SEO</li></ul>
+            <a class="card__link" href="#">View project →</a>
+          </article>
+          <article class="card reveal">
+            <div class="card__img" role="img" aria-label="Project 3 screenshot placeholder"><span>03</span></div>
+            <h3>Client site</h3>
+            <p>A design-led Webflow build with custom interactions.</p>
+            <ul class="tags"><li>Webflow</li><li>CSS</li><li>JavaScript</li></ul>
+            <a class="card__link" href="#">View project →</a>
+          </article>
+          <article class="card reveal">
+            <div class="card__img" role="img" aria-label="Project 4 screenshot placeholder"><span>04</span></div>
+            <h3>Automation / AI workflow</h3>
+            <p>Marketing tasks and content production automated with AI tools.</p>
+            <ul class="tags"><li>Agentic AI</li><li>Automation</li></ul>
+            <a class="card__link" href="#">View project →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="section section--tint" id="about">
+      <div class="wrap about">
+        <div class="about__aside">
+          <p class="eyebrow reveal">About</p>
+          <h2 class="section__title reveal">About me</h2>
+          <!-- ASSET: desktop-only sticky portrait beside the journey -->
+          <div class="about__photo reveal">
+            <img src="assets/salman-trans.png" alt="" width="433" height="577" loading="lazy">
+          </div>
+        </div>
+        <div class="about__body reveal">
+          <!-- CONTENT: about -->
+          <p>I am a Business and Information Technology graduate from the University of the Punjab, Lahore, with a strong interest in technology, digital innovation, and continuous learning. I have two years of experience in web development, specializing in WordPress, Shopify, and Webflow, and have also developed skills in AI-driven content creation and automation.</p>
+          <p>I am eager to develop my knowledge and technical expertise further, gain global experience, and contribute to innovative projects that address real-world challenges.</p>
+          <ul class="facts">
+            <li><strong>Lahore</strong><span>Pakistan</span></li>
+            <li><strong>2 years</strong><span>in web development</span></li>
+            <li><strong>BBIT</strong><span>graduate, 2025</span></li>
+          </ul>
+
+          <h3 class="sub">My journey</h3>
+          <!-- CONTENT: journey milestones (oldest first) -->
+          <ol class="journey" id="journey">
+            <li class="journey__step">
+              <span class="journey__year">2021</span>
+              <div class="journey__body"><h4>Started at university</h4><p>Began a degree in Business &amp; IT and wrote my first lines of HTML.</p></div>
+            </li>
+            <li class="journey__step">
+              <span class="journey__year">2023</span>
+              <div class="journey__body"><h4>First real stores</h4><p>Kept live e-commerce and dropshipping stores running and learned SEO on the job.</p></div>
+            </li>
+            <li class="journey__step">
+              <span class="journey__year">2024</span>
+              <div class="journey__body"><h4>Owned a store end to end</h4><p>Built and ran an online shop: products, orders, inventory, SEO and training the team.</p></div>
+            </li>
+            <li class="journey__step">
+              <span class="journey__year">2025</span>
+              <div class="journey__body"><h4>Graduated &amp; went multi-platform</h4><p>Shipped client sites on WordPress, Shopify and Webflow.</p></div>
+            </li>
+            <li class="journey__step">
+              <span class="journey__year">2026</span>
+              <div class="journey__body"><h4>Automation &amp; AI</h4><p>Paired web development with AI tools to automate marketing and content work.</p></div>
+            </li>
+            <li class="journey__step journey__step--next">
+              <span class="journey__year">Next</span>
+              <div class="journey__body"><h4>Going global</h4><p>Bigger projects, international study and work that solves real problems.</p></div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SKILLS ============ -->
+    <section class="section" id="skills">
+      <div class="wrap">
+        <p class="eyebrow reveal">Toolbox</p>
+        <h2 class="section__title reveal">Skills</h2>
+        <!-- CONTENT: skills (one row per category) -->
+        <ul class="stack" id="stack">
+          <li class="stack__row reveal"><span class="stack__num">01</span><h3 class="stack__name">Platforms</h3><ul class="stack__tools"><li>WordPress</li><li>Shopify</li><li>Webflow</li></ul></li>
+          <li class="stack__row reveal"><span class="stack__num">02</span><h3 class="stack__name">Frontend</h3><ul class="stack__tools"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul></li>
+          <li class="stack__row reveal"><span class="stack__num">03</span><h3 class="stack__name">Backend &amp; data</h3><ul class="stack__tools"><li>PHP</li><li>SQL</li></ul></li>
+          <li class="stack__row reveal"><span class="stack__num">04</span><h3 class="stack__name">E-commerce &amp; SEO</h3><ul class="stack__tools"><li>Store systems</li><li>On-page SEO</li><li>Technical SEO</li></ul></li>
+          <li class="stack__row reveal"><span class="stack__num">05</span><h3 class="stack__name">AI &amp; automation</h3><ul class="stack__tools"><li>Agentic AI</li><li>AI content</li><li>Marketing automation</li></ul></li>
+          <li class="stack__row reveal"><span class="stack__num">06</span><h3 class="stack__name">Office</h3><ul class="stack__tools"><li>Microsoft Office</li><li>PowerPoint</li><li>Excel</li></ul></li>
+        </ul>
+      </div>
+      <!-- CONTENT: crossed tapes (decorative). Each track is two identical halves for a seamless loop;
+           each half repeats its phrases twice so it stays wider than large screens. -->
+      <div class="tapes" aria-hidden="true">
+        <div class="tape tape--ink"><div class="tape__track">
+          <span>Design</span><span>Build</span><span>Launch</span><span>Automate</span><span>Grow</span>
+          <span>Design</span><span>Build</span><span>Launch</span><span>Automate</span><span>Grow</span>
+          <span>Design</span><span>Build</span><span>Launch</span><span>Automate</span><span>Grow</span>
+          <span>Design</span><span>Build</span><span>Launch</span><span>Automate</span><span>Grow</span>
+        </div></div>
+        <div class="tape tape--accent"><div class="tape__track">
+          <span>Let’s build</span><span>Open for projects</span><span>Based in Lahore</span><span>Working worldwide</span>
+          <span>Let’s build</span><span>Open for projects</span><span>Based in Lahore</span><span>Working worldwide</span>
+          <span>Let’s build</span><span>Open for projects</span><span>Based in Lahore</span><span>Working worldwide</span>
+          <span>Let’s build</span><span>Open for projects</span><span>Based in Lahore</span><span>Working worldwide</span>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ============ CLIENTS ============ -->
+    <section class="section section--tint" id="clients">
+      <div class="wrap">
+        <p class="eyebrow reveal">Worked with</p>
+        <h2 class="section__title reveal">Clients</h2>
+        <!-- CONTENT: employers/clients -->
+        <ul class="logos reveal">
+          <li>Infinix Holding</li><li>Meem Solutions</li><li>Relife</li><li>Digital Software Market</li>
+        </ul>
+        <!-- CONTENT: testimonials (placeholders) -->
+        <div class="quotes">
+          <blockquote class="quote reveal"><p>“Testimonial placeholder — a short line about working together.”</p><footer>Name, Company</footer></blockquote>
+          <blockquote class="quote reveal"><p>“Testimonial placeholder — a short line about working together.”</p><footer>Name, Company</footer></blockquote>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section" id="contact">
+      <div class="wrap contact">
+        <p class="eyebrow reveal">Contact</p>
+        <h2 class="contact__title reveal">Let’s build<br><span class="outline">something.</span></h2>
+        <div class="contact__links reveal">
+          <a class="btn btn--primary js-email" href="mailto:salmanalirafeeq123@gmail.com">salmanalirafeeq123@gmail.com</a>
+          <a class="btn btn--ghost" href="tel:+923166462657">(+92) 316 6462657</a>
+        </div>
+        <p class="contact__meta reveal">Lahore, Pakistan · GitHub · LinkedIn · Instagram <em>(links to add)</em></p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER (placeholder, design pending) ============ -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <span>© <span id="year">2026</span> Salman Ali Rafeeq</span>
+      <span>Footer design coming soon</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

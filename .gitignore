@@ -1,0 +1,9 @@
+# Private notes, kept local only (resume details, build plan, assistant instructions)
+CLAUDE.md
+PLAN.md
+CONTENT.md
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
