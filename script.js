@@ -16,14 +16,18 @@
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const PT_MS = 600;
-  const reveal = () => {
-    try { sessionStorage.removeItem('pt'); } catch (e) {}
+  // hold: back/forward skips the cover animation (no click to catch), so stay covered for the same
+  // time first; that way coming back takes as long as going forward
+  const reveal = (hold) => {
+    let viaLink = false;
+    try { viaLink = !!sessionStorage.getItem('pt'); sessionStorage.removeItem('pt'); } catch (e) {}
     void root.offsetWidth; // start from the covered state, then animate the panels back to their corners
-    requestAnimationFrame(() => root.classList.remove('pt-enter', 'pt-leave'));
+    const open = () => requestAnimationFrame(() => root.classList.remove('pt-enter', 'pt-leave'));
+    if (hold || !viaLink) setTimeout(open, PT_MS); else open();
   };
-  if (root.classList.contains('pt-enter')) reveal();
+  if (root.classList.contains('pt-enter')) reveal(false);
   // Back/forward from the browser cache: the page comes back covered, so reveal it again
-  window.addEventListener('pageshow', (e) => { if (e.persisted) reveal(); });
+  window.addEventListener('pageshow', (e) => { if (e.persisted) reveal(true); });
 
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href]');
