@@ -1,6 +1,43 @@
 (() => {
   document.documentElement.classList.add('js');
 
+  // Opened straight from disk (file://)? Browsers show a folder listing for links like "blog/",
+  // so point folder links at their index.html. Online (GitHub Pages / Live Server) links stay clean.
+  if (location.protocol === 'file:') {
+    document.querySelectorAll('a[href]').forEach((a) => {
+      const href = a.getAttribute('href');
+      if (/^(https?:|mailto:|tel:|#)/.test(href)) return;
+      const [path, hash] = href.split('#');
+      if (path.endsWith('/')) a.setAttribute('href', path + 'index.html' + (hash !== undefined ? '#' + hash : ''));
+    });
+  }
+
+  // ===== Page transition (see .pt in styles.css) =====
+  const root = document.documentElement;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const PT_MS = 600;
+  const reveal = () => {
+    try { sessionStorage.removeItem('pt'); } catch (e) {}
+    void root.offsetWidth; // start from the covered state, then animate the panels back to their corners
+    requestAnimationFrame(() => root.classList.remove('pt-enter', 'pt-leave'));
+  };
+  if (root.classList.contains('pt-enter')) reveal();
+  // Back/forward from the browser cache: the page comes back covered, so reveal it again
+  window.addEventListener('pageshow', (e) => { if (e.persisted) reveal(); });
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href]');
+    if (!a || reduceMotion || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (a.target === '_blank' || a.hasAttribute('download') || a.classList.contains('js-email')) return;
+    const url = new URL(a.href, location.href);
+    if (!/^(https?|file):$/.test(url.protocol) || url.origin !== location.origin) return;
+    if (url.pathname === location.pathname) return; // same page (e.g. #section links): normal smooth scroll
+    e.preventDefault();
+    try { sessionStorage.setItem('pt', '1'); } catch (err) {}
+    root.classList.add('pt-leave');
+    setTimeout(() => { location.href = url.href; }, PT_MS);
+  });
+
   const nav = document.getElementById('nav');
   const toggle = document.querySelector('.nav__toggle');
   const menu = document.getElementById('menu');
@@ -39,12 +76,13 @@
     reveals.forEach((el) => el.classList.add('is-visible'));
   }
 
-  // Active section highlight
-  const sections = links.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  // Active section highlight (only same-page "#section" links; page links like Blog keep their own state)
+  const hashLinks = links.filter((a) => a.getAttribute('href').startsWith('#'));
+  const sections = hashLinks.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
   const spy = new IntersectionObserver((entries) => {
     entries.forEach((en) => {
       if (!en.isIntersecting) return;
-      links.forEach((a) => {
+      hashLinks.forEach((a) => {
         const on = a.getAttribute('href') === '#' + en.target.id;
         a.classList.toggle('is-active', on);
         if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
@@ -52,9 +90,12 @@
     });
   }, { rootMargin: '-45% 0px -50% 0px' });
   sections.forEach((s) => spy.observe(s));
-  new IntersectionObserver(([en]) => {
-    if (en.isIntersecting) links.forEach((a) => { a.classList.remove('is-active'); a.removeAttribute('aria-current'); });
-  }, { rootMargin: '-45% 0px -50% 0px' }).observe(document.getElementById('hero'));
+  const hero = document.getElementById('hero');
+  if (hero) {
+    new IntersectionObserver(([en]) => {
+      if (en.isIntersecting) hashLinks.forEach((a) => { a.classList.remove('is-active'); a.removeAttribute('aria-current'); });
+    }, { rootMargin: '-45% 0px -50% 0px' }).observe(hero);
+  }
 
   // Journey: fill the track as it scrolls past the middle of the screen and light up reached steps.
   const journey = document.getElementById('journey');

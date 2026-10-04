@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Page transition: start covered when arriving from another page (or via back/forward), then script.js reveals -->
+  <script>try{var n=performance.getEntriesByType('navigation')[0];if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&(sessionStorage.getItem('pt')||(n&&n.type==='back_forward')))document.documentElement.classList.add('pt-enter')}catch(e){}</script>
   <title>Salman Ali Rafeeq — Web Developer & Automation Expert</title>
   <meta name="description" content="Salman Ali Rafeeq is a web developer from Lahore building e-commerce sites and automations with WordPress, Shopify and Webflow.">
   <!-- Link previews (WhatsApp, LinkedIn, etc.). Update the URLs if the site moves to a custom domain. -->
@@ -20,6 +22,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div class="pt" aria-hidden="true"><i class="pt__a"></i><i class="pt__b"></i><span class="pt__mark">SAR<i></i></span></div>
   <div class="preloader" aria-hidden="true"><span class="preloader__mark">SAR<i></i></span></div>
   <a class="skip" href="#main">Skip to content</a>
 
@@ -34,6 +37,7 @@
       <a class="nav__link" href="#about">About</a>
       <a class="nav__link" href="#skills">Skills</a>
       <a class="nav__link" href="#clients">Clients</a>
+      <a class="nav__link" href="blog/">Blog</a>
       <!-- CONTENT: nav email button (opens Gmail compose on desktop, mail app on phones) -->
       <a class="btn btn--primary nav__cta js-email" href="mailto:salmanalirafeeq123@gmail.com">Let’s talk</a>
     </nav>

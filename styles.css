@@ -9,6 +9,7 @@
   --tint: #f6f6f4;
   --muted: #777;
   --line: rgba(0, 0, 0, 0.12);
+  --shadow: rgba(0, 0, 0, 0.18);
   --footer-bg: #f9f9f9;
   --dots: #b5b5b5;
 
@@ -73,6 +74,30 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .preloader__mark { font-size: 56px; animation: pulse 1s ease-in-out infinite alternate; }
 .preloader__mark i, .nav__logo i { width: 0.22em; height: 0.22em; border-radius: 50%; background: var(--accent); display: inline-block; }
 @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }
+
+/* ===== Page transition =====
+   Two black panels grow from the bottom-left and top-right corners and meet along the diagonal,
+   then pull back to their corners on the next page. Driven by script.js:
+   html.pt-enter = page starts covered (set by the inline script in <head>), html.pt-leave = cover before leaving. */
+.pt { position: fixed; inset: 0; z-index: 400; pointer-events: none; }
+.pt__a, .pt__b {
+  position: absolute; inset: 0; background: var(--ink);
+  transition: clip-path 0.6s cubic-bezier(0.77, 0, 0.18, 1);
+}
+.pt__a { clip-path: polygon(0 100%, 0 100%, 0 100%); }      /* collapsed in the bottom-left corner */
+.pt__b { clip-path: polygon(100% 0, 100% 0, 100% 0); }      /* collapsed in the top-right corner */
+.pt-enter .pt__a, .pt-leave .pt__a { clip-path: polygon(0 -1%, 101% 100%, 0 100%); } /* bottom-left half (slight overlap, no seam) */
+.pt-enter .pt__b, .pt-leave .pt__b { clip-path: polygon(-1% 0, 100% 0, 100% 101%); } /* top-right half */
+.pt-enter .pt, .pt-leave .pt { pointer-events: auto; }
+.pt__mark {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  font: 700 56px/1 var(--font-display); color: var(--bg); letter-spacing: 0.02em;
+  display: inline-flex; align-items: baseline; gap: 4px;
+  opacity: 0; transition: opacity 0.25s;
+}
+.pt__mark i { width: 0.22em; height: 0.22em; border-radius: 50%; background: var(--accent); }
+.pt-enter .pt__mark, .pt-leave .pt__mark { opacity: 1; transition-delay: 0.3s; }
+.pt-enter .preloader { display: none; } /* arriving via the transition: skip the home preloader */
 
 /* ===== Nav ===== */
 .nav {
@@ -447,4 +472,5 @@ html:not(.js) .testi__nav { display: none; }
   *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
   .js .reveal { opacity: 1; transform: none; }
   .hero__portrait:hover img { transform: none; }
+  .pt { display: none; }
 }

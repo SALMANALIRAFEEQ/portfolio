@@ -1,0 +1,192 @@
+/* ===== Blog (listing + post template). Tokens come from styles.css. ===== */
+.blog-page main { padding-top: var(--nav-h); }
+
+/* Reading progress: thin accent bar above the nav, filled by blog.js */
+.read-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 150; pointer-events: none; }
+.read-progress i { display: block; height: 100%; background: var(--accent); transform: scaleX(var(--read, 0)); transform-origin: left; }
+
+/* Breadcrumbs */
+.crumbs ol { display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px; color: var(--muted); }
+.crumbs li + li::before { content: "/"; margin-right: 6px; color: var(--dots); }
+.crumbs a { color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--accent); }
+.crumbs [aria-current] { color: var(--ink); font-weight: 600; }
+
+/* ----- Post header ----- */
+.post__header { padding-top: 48px; padding-bottom: 40px; max-width: 1200px; }
+.post__header .crumbs { margin-bottom: 40px; }
+.post__title { font-size: clamp(40px, 7vw, 76px); line-height: 1.04; max-width: 18ch; margin-bottom: 20px; }
+.post__dek { font-size: clamp(18px, 2vw, 21px); line-height: 1.55; max-width: 62ch; color: var(--text); margin-bottom: 28px; }
+.post__meta { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.post__meta > div { display: flex; flex-direction: column; }
+.post__author { font-weight: 600; color: var(--ink); font-size: 16px; }
+.post__author a { color: inherit; text-decoration: none; }
+.post__author a:hover { color: var(--accent); }
+.post__info { font-size: 14px; color: var(--muted); }
+.post__avatar {
+  flex: none; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--black);
+  display: grid; place-items: center; font: 700 15px/1 var(--font-display); letter-spacing: 0.02em; color: var(--ink); background: var(--bg);
+}
+.post__avatar--lg { width: 72px; height: 72px; font-size: 22px; }
+.post__tags { margin: 0; }
+/* Sparse dotted rule (same as the footer) between header and body */
+.post__header::after {
+  content: ""; display: block; height: 2px; margin-top: 40px;
+  background: radial-gradient(circle, var(--dots) 1px, transparent 1.2px) 0 50% / 12px 2px repeat-x;
+}
+
+/* ----- Layout: TOC + body ----- */
+.post__layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-bottom: 72px; }
+.post__layout > * { min-width: 0; } /* wide tables/code scroll inside their box instead of widening the page */
+
+/* Table of contents */
+.toc { border: 2px solid var(--black); border-radius: 4.48px; background: var(--bg); }
+.toc summary {
+  cursor: pointer; list-style: none; padding: 14px 18px;
+  font-weight: 600; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.toc summary::-webkit-details-marker { display: none; }
+.toc summary::after { content: "+"; font: 700 22px/1 var(--font-display); transition: transform 0.3s; }
+.toc[open] summary::after { transform: rotate(45deg); }
+.toc ol { counter-reset: toc; padding: 0 18px 16px; }
+.toc li { counter-increment: toc; }
+.toc a {
+  display: grid; grid-template-columns: 28px 1fr; gap: 6px; padding: 7px 0;
+  font-size: 15px; line-height: 1.35; color: var(--text); text-decoration: none; transition: color 0.3s;
+}
+.toc a::before { content: counter(toc, decimal-leading-zero); font: 700 15px/1.35 var(--font-display); color: var(--muted); transition: color 0.3s; }
+.toc a:hover, .toc a.is-active { color: var(--ink); font-weight: 600; }
+.toc a.is-active::before { color: var(--accent); }
+
+/* "Readers right now" toast (blog.js): fixed bottom-right on every screen size */
+.readers {
+  position: fixed; right: 16px; bottom: 16px; z-index: 90; margin: 0; max-width: min(340px, calc(100% - 32px));
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  background: var(--bg); border: 2px solid var(--black); border-radius: 4.48px; box-shadow: 0 8px 24px var(--shadow);
+  font-size: 14px; line-height: 1.35; color: var(--text);
+  opacity: 0; visibility: hidden; transform: translateY(12px); pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s, visibility 0s 0.25s;
+}
+.readers.is-visible { opacity: 1; visibility: visible; transform: none; transition: opacity 0.25s, transform 0.25s; }
+.readers b { font-weight: 600; color: var(--ink); }
+/* Live dot: accent with a soft ring that pulses */
+.readers i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: readers-ping 1.2s ease-out infinite; }
+@keyframes readers-ping {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  to { box-shadow: 0 0 0 8px transparent; }
+}
+
+/* ----- Prose: long-form reading styles for the Markdown output ----- */
+.prose { max-width: 70ch; font-size: 18px; line-height: 1.75; font-weight: 400; color: var(--text); counter-reset: h2; }
+.prose > * + * { margin-top: 1.25em; }
+.prose p { margin-bottom: 0; } /* only reset the bottom margin, so the spacing rule above still applies */
+.prose > :first-child { margin-top: 0; }
+.prose h2, .prose h3 { scroll-margin-top: calc(var(--nav-h) + 24px); }
+.prose h2 { counter-increment: h2; margin-top: 2.4em; font-size: clamp(30px, 4vw, 42px); line-height: 1.1; }
+/* Outlined section number before each h2, like the numbered rows elsewhere on the site */
+.prose h2::before {
+  content: counter(h2, decimal-leading-zero); display: block; margin-bottom: 6px;
+  font-size: 0.75em; color: transparent; -webkit-text-stroke: 1px var(--stroke);
+}
+.prose h3 { margin-top: 1.8em; font-size: clamp(22px, 2.6vw, 27px); line-height: 1.2; }
+.prose h2 + *, .prose h3 + * { margin-top: 0.6em; }
+.prose strong { font-weight: 600; color: var(--ink); }
+.prose a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; transition: color 0.3s; }
+.prose a:hover { color: var(--accent); }
+.prose ul, .prose ol { padding-left: 1.3em; }
+.prose ul { list-style: square; }
+.prose ol { list-style: decimal; }
+.prose li + li { margin-top: 0.45em; }
+.prose li::marker { color: var(--accent); }
+
+.prose blockquote {
+  margin: 2em 0; padding: 4px 0 4px 24px; border-left: 4px solid var(--accent);
+  font: 700 clamp(24px, 3vw, 30px)/1.25 var(--font-display); color: var(--ink);
+}
+.prose code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: 0.86em;
+  background: var(--tint); border-radius: 4px; padding: 0.15em 0.4em;
+}
+.prose pre {
+  margin: 1.6em 0; padding: 20px 22px; overflow-x: auto;
+  background: var(--ink); color: var(--bg); border-radius: 4.48px; line-height: 1.6;
+}
+.prose pre code { background: none; padding: 0; color: inherit; font-size: 15px; }
+
+/* Scroll shadows: an edge shadow appears only on the side that has more table to scroll to */
+.table-wrap {
+  overflow-x: auto; margin: 1.8em 0;
+  background:
+    linear-gradient(to right, var(--bg) 30%, transparent) left / 40px 100% no-repeat local,
+    linear-gradient(to left, var(--bg) 30%, transparent) right / 40px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--shadow), transparent) left / 14px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--shadow), transparent) right / 14px 100% no-repeat scroll;
+}
+.prose table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 16px; line-height: 1.45; }
+.prose caption { caption-side: top; text-align: left; font-size: 14px; color: var(--muted); padding-bottom: 10px; }
+.prose thead th { font: 700 18px/1.2 var(--font-display); text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink); text-align: left; padding: 12px 14px; border-top: 2px solid var(--black); border-bottom: 2px solid var(--black); }
+.prose tbody th { font-weight: 600; color: var(--ink); text-align: left; }
+.prose tbody th, .prose tbody td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+
+.callout { margin: 2em 0; padding: 22px 24px; background: var(--tint); border: 2px solid var(--black); border-radius: 4.48px; }
+.callout__label { font-weight: 600; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px !important; }
+.callout p + p { margin-top: 0; }
+
+/* ----- End of post ----- */
+.post__end { padding-bottom: 96px; }
+.author-box { display: flex; gap: 20px; align-items: flex-start; padding: 32px 0; border-top: 2px solid var(--black); border-bottom: 1px solid var(--line); }
+.author-box p { margin: 0; }
+.author-box__name { font: 700 30px/1.1 var(--font-display); color: var(--ink); margin: 2px 0 8px !important; }
+.author-box__bio { font-size: 16px; max-width: 56ch; margin-bottom: 18px !important; }
+.author-box__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.post__back { display: inline-block; margin-top: 28px; font-weight: 600; color: var(--ink); text-decoration: none; background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 2px no-repeat; transition: background-size 0.35s; }
+.post__back:hover { background-size: 100% 2px; }
+
+/* ===== Blog listing ===== */
+.blog-head { padding-top: 48px; padding-bottom: 32px; }
+.blog-head .crumbs { margin-bottom: 40px; }
+.blog-head h1 { font-size: clamp(48px, 9vw, 96px); line-height: 1; margin-bottom: 20px; }
+.blog-head h1 .outline { display: block; }
+.blog-head p:not(.eyebrow) { font-size: clamp(18px, 2vw, 21px); max-width: 60ch; }
+/* Post grid: 1 / 2 / 3 columns; equal-height cards that fill black on hover */
+.post-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-bottom: 96px; }
+.post-card a {
+  position: relative; isolation: isolate; overflow: hidden; height: 100%;
+  display: flex; flex-direction: column; gap: 12px; padding: 28px 26px 26px;
+  border: 2px solid var(--black); border-radius: 4.48px; background: var(--bg);
+  color: inherit; text-decoration: none;
+  transition: transform 0.35s;
+}
+.post-card a::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; background: var(--ink);
+  transform: scaleY(0); transform-origin: bottom; transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.post-card__num { position: absolute; top: 18px; right: 22px; font: 700 44px/1 var(--font-display); color: transparent; -webkit-text-stroke: 1px var(--stroke); transition: -webkit-text-stroke-color 0.4s; }
+.post-card__meta { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-right: 64px; transition: color 0.4s; }
+.post-card h2 { font-size: clamp(24px, 2.4vw, 30px); line-height: 1.1; transition: color 0.4s; }
+.post-card p { margin: 0; font-size: 16px; line-height: 1.55; transition: color 0.4s; }
+.post-card__more { margin-top: auto; padding-top: 8px; font-weight: 600; color: var(--ink); transition: color 0.4s; }
+.post-card__more span { display: inline-block; transition: transform 0.35s; }
+@media (hover: hover) {
+  .post-card a:hover { transform: translateY(-4px); }
+  .post-card a:hover::before { transform: scaleY(1); }
+  .post-card a:hover h2, .post-card a:hover .post-card__more { color: var(--bg); }
+  .post-card a:hover p { color: var(--bg); opacity: 0.8; }
+  .post-card a:hover .post-card__meta { color: var(--accent); }
+  .post-card a:hover .post-card__num { -webkit-text-stroke-color: var(--bg); }
+  .post-card a:hover .post-card__more span { transform: translateX(4px); }
+}
+@media (min-width: 640px) { .post-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ===== Desktop ===== */
+@media (min-width: 1024px) {
+  .post__header { padding-top: 64px; }
+  .post__layout { grid-template-columns: 250px minmax(0, 1fr); gap: 64px; align-items: start; }
+  .post__toc { position: sticky; top: calc(var(--nav-h) + 32px); }
+  .toc summary { pointer-events: none; } /* always open on desktop */
+  .toc summary::after { display: none; }
+  .readers { right: 24px; bottom: 24px; }
+  .post__end { padding-left: calc(67px + 250px + 64px); }
+  .post-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+}
