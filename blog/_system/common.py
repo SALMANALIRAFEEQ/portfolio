@@ -156,15 +156,18 @@ def render_markdown(body: str, base_url: str) -> tuple[str, list, str, int]:
     callouts = []
 
     def take_callout(m):
-        label = (m.group(1) or "Note").strip()
-        inner = _md().convert(m.group(2).strip())
+        kind, label = m.group(1).lower(), (m.group(2) or "").strip()
+        label = label or {"callout": "Note", "takeaway": "Key takeaway", "warning": "Watch out"}.get(kind, kind.capitalize())
+        inner = _md().convert(m.group(3).strip())
         callouts.append(
             f'<aside class="callout" aria-label="{html.escape(label)}">\n'
             f'<p class="callout__label">{html.escape(label)}</p>\n{inner}\n</aside>'
         )
         return f"\n\nBLOGCALLOUT{len(callouts) - 1}\n\n"
 
-    body = re.sub(r"^:::callout[ \t]*(.*?)\n(.*?)\n:::[ \t]*$", take_callout, body, flags=re.M | re.S)
+    # :::callout Label / :::tip / :::note / :::warning / :::takeaway (AI models use all of these)
+    body = re.sub(r"^:::[ \t]*(callout|tip|note|warning|takeaway|info)\b[ \t]*(.*?)\n(.*?)\n:::[ \t]*$",
+                  take_callout, body, flags=re.M | re.S | re.I)
 
     # "Table: caption" lines → remembered per table, in order
     captions, lines, out, table_no = {}, body.split("\n"), [], 0
@@ -270,6 +273,8 @@ def check_post(post: Post, cfg: dict, *, strict: bool, known_slugs: set[str] = f
 
     if not post.html:
         render_post(post, site["base_url"])
+    if re.search(r"(^|>)\s*:::", post.html, re.M):
+        errors.append("a ':::' box was not closed or uses an unknown type; use ':::callout Label' … ':::'")
     if "<h1" in post.html:
         errors.append("the article body must not contain an h1 (# heading); the title is the only h1")
     if len(post.toc) < (4 if strict else 2):

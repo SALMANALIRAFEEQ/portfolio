@@ -105,9 +105,10 @@ jobs:
           SLUG: ${{ steps.write.outputs.slug }}
           TITLE: ${{ steps.write.outputs.title }}
         run: |
-          git switch -c "blog-draft/$SLUG"
+          branch="blog-draft/$SLUG-${{ github.run_number }}"   # unique per run, so leftover branches never clash
+          git switch -c "$branch"
           bash "$RUNNER_TEMP/commit.sh" "Blog draft: $SLUG"
           gh label create blog-draft --color 2563eb --description "AI-written blog post waiting for review" --force
-          gh pr create --base main --head "blog-draft/$SLUG" --label blog-draft \
+          gh pr create --base main --head "$branch" --label blog-draft \
             --assignee "${{ github.repository_owner }}" \
             --title "New blog post: $TITLE" --body-file "$RUNNER_TEMP/pr.md"
