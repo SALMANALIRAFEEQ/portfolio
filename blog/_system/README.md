@@ -33,7 +33,7 @@ The only blog code in the portfolio is the Blog link in `index.html`, between `B
 Until the keys exist, the daily run only rebuilds pages and skips writing. Nothing fails.
 
 ## How it runs
-Every day at 10:00 Pakistan time:
+Every day at 05:00 Pakistan time:
 1. **Publish due posts:** a post goes live when `draft: false` and its `date` has arrived. Future dates wait.
 2. **Write a new post if due:** a new post is due when the newest post is at least `every_days` old.
    - The AI picks a new topic, never repeating one, and balances categories.

@@ -12,7 +12,7 @@ autopilot:
   #          close it to discard. No new draft is written while one is waiting.
   # auto   = publish straight away, no email, no approval.
   mode: auto             # TEMPORARY test value (normal: review)
-  # The check runs every day at 10:00 Pakistan time (05:00 UTC); see the cron line in .github/workflows/blog.yml.
+  # The check runs every day at 05:00 Pakistan time (00:00 UTC); see the cron line in .github/workflows/blog.yml.
 
 # ----- AI providers, tried in this order. If one fails or hits its free limit, the next one is used. -----
 # Keys are NOT stored here: add them in GitHub → Settings → Secrets and variables → Actions:
