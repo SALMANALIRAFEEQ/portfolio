@@ -1,0 +1,49 @@
+# One-click removal of the whole blog. The portfolio is left exactly as it is, except that the "Blog" link
+# (the lines between the BLOG-LINK markers in index.html) is taken out of the home page nav.
+# Run it from GitHub → Actions → "Blog: remove completely" → Run workflow → tick the box → Run.
+# Undo: revert the "Remove blog" commit and re-enable the two blog workflows in the Actions tab.
+name: 'Blog: remove completely'
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Tick to permanently remove the blog (posts, pages and automation). The portfolio stays as it is.
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # delete the blog folder
+  actions: write    # switch the blog workflows off
+  pages: write      # redeploy the site
+
+jobs:
+  remove:
+    if: inputs.confirm
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove the blog folder and the Blog nav link
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -r -q --ignore-unmatch blog
+          sed -i '/<!-- BLOG-LINK:START/,/<!-- BLOG-LINK:END -->/d' index.html
+          git add index.html
+          outside=$(git status --porcelain | cut -c4- | grep -v -e '^blog/' -e '^index.html$' || true)
+          if [ -n "$outside" ]; then echo "::error::Unexpected changes:"; echo "$outside"; exit 1; fi
+          git status --short
+          if ! git diff --cached --quiet; then
+            git commit -q -m "Remove blog"
+            git push -q origin HEAD
+          fi
+
+      - name: Switch off the blog workflows and redeploy the site
+        run: |
+          gh workflow disable blog.yml || true
+          gh workflow disable blog-remove.yml || true
+          gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds" >/dev/null 2>&1 || true
+          echo "Blog removed. You can also delete .github/workflows/blog.yml and blog-remove.yml (they are now switched off)."

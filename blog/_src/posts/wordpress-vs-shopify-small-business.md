@@ -2,6 +2,7 @@
 # ===== Front matter: every post fills these fields; the build turns them into the <head> SEO tags =====
 title: "WordPress vs Shopify: Which Is Better for Your Small Online Store?"   # h1 + og:title + schema headline
 seo_title: "WordPress vs Shopify for Small Stores"                            # <title> (site name is appended; keep ≤ 40 chars)
+short_title: "WordPress vs Shopify"                                          # breadcrumb label (optional; defaults to seo_title)
 description: "WordPress or Shopify? A plain-English comparison of cost, ease of use and SEO to help small businesses choose the right platform for their online store."  # ≤ 160 chars
 dek: "A plain-English comparison of cost, ease of use and SEO, from someone who builds stores on both, to help you pick the right platform the first time."
 slug: wordpress-vs-shopify-small-business                                   # URL: /blog/<slug>/
@@ -34,6 +35,7 @@ WordPress is free, open-source software that runs a large share of the web. On i
 
 ## Side-by-side comparison {#comparison}
 
+Table: WordPress + WooCommerce vs Shopify at a glance
 | Factor | WordPress + WooCommerce | Shopify |
 |---|---|---|
 | Setup speed | Slower, needs hosting and setup | Fast, sign up and start |
@@ -52,7 +54,7 @@ WordPress itself is free, but a store still costs money to run. Shopify’s pric
 
 For a small catalogue, the totals are often close in the first year. The difference shows later: WordPress costs stay fairly flat, while Shopify costs tend to rise with every app you add.
 
-## Ease of use and day-to-day running {#ease-of-use}
+## Ease of use and day-to-day running {#ease-of-use data-toc-label="Ease of use"}
 
 Shopify wins on simplicity. Adding products, managing orders and processing payments all happen in one clean dashboard, and there is nothing to update or back up.
 
@@ -90,7 +92,7 @@ Clean, readable URLs such as `/products/seed-pencils` also help both shoppers an
 Starting small and want to sell this month? Go with Shopify. Planning to build a brand with content, custom features and lower long-term costs? Go with WordPress and WooCommerce. You can see real stores I have built on both in [my work](../../#work).
 :::
 
-## Frequently asked questions {#faq}
+## Frequently asked questions {#faq data-toc-label="FAQ"}
 
 ### Can I move from Shopify to WordPress later?
 

@@ -1,0 +1,113 @@
+# Blog automation. Completely separate from the portfolio: it only ever commits files inside /blog
+# (a guard step stops the run if anything else changed). Settings: blog/_system/config.yml
+name: Blog
+
+on:
+  push:
+    branches: [main]
+    paths: ['blog/_src/**', 'blog/_system/**']   # a post was added/edited/merged, or the settings changed
+  schedule:
+    - cron: '0 5 * * *'                          # every day 10:00 Pakistan time: publish scheduled posts, write one if due
+  workflow_dispatch:
+    inputs:
+      task:
+        description: What to do
+        type: choice
+        options: [rebuild pages, write a post now]
+        default: rebuild pages
+
+permissions:
+  contents: write        # commit generated blog pages
+  pull-requests: write   # open the review pull request
+  pages: write           # ask GitHub Pages to redeploy after a commit
+
+concurrency:
+  group: blog
+  cancel-in-progress: false
+
+jobs:
+  blog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Is the blog still installed?
+        id: present
+        run: |
+          if [ -f blog/_system/build.py ]; then echo "yes=true" >> "$GITHUB_OUTPUT"
+          else echo "The blog has been removed; nothing to do."; fi
+
+      - uses: actions/setup-python@v5
+        if: steps.present.outputs.yes
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: blog/_system/requirements.txt
+
+      - name: Install
+        if: steps.present.outputs.yes
+        run: |
+          pip install -r blog/_system/requirements.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cat > "$RUNNER_TEMP/commit.sh" <<'EOF'
+          # usage: commit.sh "message" — commit and push blog changes to the current branch, never anything else
+          set -e
+          outside=$(git status --porcelain --untracked-files=all | cut -c4- | grep -v '^blog/' || true)
+          if [ -n "$outside" ]; then echo "::error::Refusing to commit changes outside /blog:"; echo "$outside"; exit 1; fi
+          git add -A blog
+          if git diff --cached --quiet; then echo "No blog changes to commit."; exit 0; fi
+          git commit -q -m "$1"
+          branch=$(git branch --show-current)
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then git pull -q --rebase origin "$branch"; fi
+          git push -q origin HEAD
+          gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds" >/dev/null 2>&1 || true
+          echo "Committed: $1"
+          EOF
+
+      - name: Build pages and publish posts that are due
+        if: steps.present.outputs.yes
+        run: |
+          python blog/_system/build.py
+          bash "$RUNNER_TEMP/commit.sh" "Blog: update pages"
+
+      - name: Write a new post (if one is due)
+        id: write
+        if: steps.present.outputs.yes && github.event_name != 'push'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          BLOG_OWNER: ${{ github.repository_owner }}
+        run: |
+          pending=$(gh pr list --label blog-draft --state open --json number --jq length 2>/dev/null || echo 0)
+          [ "$pending" != "0" ] && export BLOG_PENDING_DRAFT=1
+          force=""; [ "${{ inputs.task }}" = "write a post now" ] && force="--force"
+          python blog/_system/write.py $force --result "$RUNNER_TEMP/result.json" --pr-body "$RUNNER_TEMP/pr.md"
+          {
+            echo "status=$(jq -r .status "$RUNNER_TEMP/result.json")"
+            echo "slug=$(jq -r '.slug // ""' "$RUNNER_TEMP/result.json")"
+            echo "title=$(jq -r '.title // ""' "$RUNNER_TEMP/result.json")"
+            echo "mode=$(python -c "import yaml; print(yaml.safe_load(open('blog/_system/config.yml'))['autopilot']['mode'])")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish the new post now (mode auto)
+        if: steps.write.outputs.status == 'written' && steps.write.outputs.mode == 'auto'
+        run: |
+          python blog/_system/build.py
+          bash "$RUNNER_TEMP/commit.sh" "Blog: publish ${{ steps.write.outputs.slug }}"
+
+      - name: Send the new post for review (mode review)
+        if: steps.write.outputs.status == 'written' && steps.write.outputs.mode != 'auto'
+        env:
+          SLUG: ${{ steps.write.outputs.slug }}
+          TITLE: ${{ steps.write.outputs.title }}
+        run: |
+          git switch -c "blog-draft/$SLUG"
+          bash "$RUNNER_TEMP/commit.sh" "Blog draft: $SLUG"
+          gh label create blog-draft --color 2563eb --description "AI-written blog post waiting for review" --force
+          gh pr create --base main --head "blog-draft/$SLUG" --label blog-draft \
+            --assignee "${{ github.repository_owner }}" \
+            --title "New blog post: $TITLE" --body-file "$RUNNER_TEMP/pr.md"

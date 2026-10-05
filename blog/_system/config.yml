@@ -1,0 +1,47 @@
+# ============================================================================
+#  BLOG SETTINGS — the only file you need to touch to change how the blog runs.
+#  The blog is fully separate from the portfolio: everything lives in /blog,
+#  plus the two workflow files in .github/workflows (blog.yml, blog-remove.yml).
+# ============================================================================
+
+# ----- Autopilot: AI writes a new post on a schedule -----
+autopilot:
+  enabled: true          # false = stop writing new posts (already published posts stay)
+  every_days: 7          # write a new post when the newest post is at least this many days old
+  # review = the draft arrives as a pull request (GitHub emails it to you); press "Merge" to publish,
+  #          close it to discard. No new draft is written while one is waiting.
+  # auto   = publish straight away, no email, no approval.
+  mode: review
+  # The check runs every day at 10:00 Pakistan time (05:00 UTC); see the cron line in .github/workflows/blog.yml.
+
+# ----- AI providers, tried in this order. If one fails or hits its free limit, the next one is used. -----
+# Keys are NOT stored here: add them in GitHub → Settings → Secrets and variables → Actions:
+#   GEMINI_API_KEY (Google AI Studio)   GROQ_API_KEY (console.groq.com)
+providers:
+  - name: gemini
+    models: [gemini-flash-latest, gemini-flash-lite-latest]   # "latest" aliases follow Google's current models
+  - name: groq
+    models: [llama-3.3-70b-versatile, openai/gpt-oss-120b]
+
+# ----- What the AI writes about -----
+writing:
+  min_words: 900
+  max_words: 1500
+  categories: [Web Development, E-commerce, SEO, Automation]   # every post must use one of these
+  topic_areas:
+    - Choosing and running a website or online store on WordPress, WooCommerce, Shopify or Webflow
+    - On-page and technical SEO for small business websites and product pages
+    - Website speed, maintenance, security basics and backups
+    - Running an online store day to day (products, orders, inventory)
+    - Saving time with marketing automation and AI tools, explained for non-technical owners
+  audience: Small business owners and marketing teams (often in Pakistan, but write for a global reader) who are not developers
+
+# ----- Site details used in page tags (normally never change) -----
+site:
+  base_url: https://salmanalirafeeq.github.io/portfolio/
+  name: Salman Ali Rafeeq
+  author: Salman Ali Rafeeq
+  email: salmanalirafeeq123@gmail.com
+  author_bio: Web developer in Lahore building e-commerce stores and automations with WordPress, Shopify and Webflow.
+  image: assets/salman.jpeg
+  timezone_offset: "+05:00"   # Pakistan time, used for publish dates

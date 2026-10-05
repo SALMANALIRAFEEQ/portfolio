@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Submit https://salmanalirafeeq.github.io/portfolio/sitemap.xml in Google Search Console. Add each new post here (later: generated automatically). -->
+<!-- Portfolio pages only. The blog keeps its own sitemap at /blog/sitemap.xml (submit both in Google Search Console). -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://salmanalirafeeq.github.io/portfolio/</loc>
-    <lastmod>2026-10-04</lastmod>
-  </url>
-  <url>
-    <loc>https://salmanalirafeeq.github.io/portfolio/blog/</loc>
-    <lastmod>2026-10-04</lastmod>
-  </url>
-  <url>
-    <loc>https://salmanalirafeeq.github.io/portfolio/blog/wordpress-vs-shopify-small-business/</loc>
     <lastmod>2026-10-04</lastmod>
   </url>
 </urlset>
