@@ -8,6 +8,7 @@ on:
     paths: ['blog/_src/**', 'blog/_system/**']   # a post was added/edited/merged, or the settings changed
   schedule:
     - cron: '0 5 * * *'                          # every day 10:00 Pakistan time: publish scheduled posts, write one if due
+    - cron: '4 11 * * *'                         # TEMPORARY one-off test (2026-10-05 16:04 Pakistan time); remove after
   workflow_dispatch:
     inputs:
       task:
