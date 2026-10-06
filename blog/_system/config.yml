@@ -7,7 +7,7 @@
 # ----- Autopilot: AI writes a new post on a schedule -----
 autopilot:
   enabled: true          # false = stop writing new posts (already published posts stay)
-  every_days: 7          # write a new post when the newest post is at least this many days old
+  every_days: 1          # write a new post when the newest post is at least this many days old
   # Every new post arrives as a pull request (GitHub emails it to you); press "Merge" to publish,
   # close it to discard. Nothing the AI writes goes live without your approval.
   # No new draft is written while one is waiting.
