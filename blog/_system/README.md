@@ -7,7 +7,7 @@ removed, the portfolio keeps working exactly as before.
 | Path | What it is |
 |---|---|
 | `blog/_src/posts/*.md` | The articles (Markdown). The only files you ever edit by hand |
-| `blog/_system/config.yml` | **Settings**: schedule, review/auto mode, AI models, topics, length |
+| `blog/_system/config.yml` | **Settings**: how often, AI models, topics, length |
 | `blog/_system/style-guide.md` | The voice and rules the AI follows |
 | `blog/_system/build.py` | Turns the Markdown into pages, the listing and `blog/sitemap.xml` |
 | `blog/_system/write.py` | The AI writer (Gemini first, Groq as backup) |
@@ -26,14 +26,14 @@ The only blog code in the portfolio is the Blog link in `index.html`, between `B
 3. In GitHub, open the repo and go to **Settings → Secrets and variables → Actions → New repository secret**. Add:
    - `GEMINI_API_KEY`
    - `GROQ_API_KEY`
-4. Review mode only: go to **Settings → Actions → General → Workflow permissions**. Tick
+4. Required (new posts arrive as pull requests): go to **Settings → Actions → General → Workflow permissions**. Tick
    **Allow GitHub Actions to create and approve pull requests**, then save.
 5. Optional: in Google Search Console, submit `https://salmanalirafeeq.github.io/portfolio/blog/sitemap.xml`.
 
 Until the keys exist, the daily run only rebuilds pages and skips writing. Nothing fails.
 
 ## How it runs
-Every day at 05:00 Pakistan time:
+Every day at 04:37 Pakistan time:
 1. **Publish due posts:** a post goes live when `draft: false` and its `date` has arrived. Future dates wait.
 2. **Write a new post if due:** a new post is due when the newest post is at least `every_days` old.
    - The AI picks a new topic, never repeating one, and balances categories.
@@ -43,12 +43,10 @@ Every day at 05:00 Pakistan time:
      - only safe links
      - correct length, FAQ section and SEO fields
    - A failed check gets one rewrite. If a model still fails, the next model or provider is tried.
-3. **What happens to the new post** depends on the mode:
-   - `review`: a pull request is opened and GitHub emails it to you with the full article.
-     - **Merge** to publish (live about 2 minutes later).
-     - **Close** to discard.
-     - No new draft is written while one is waiting.
-   - `auto`: the post is published straight away.
+3. **You approve every new post:** a pull request is opened, assigned to you, and GitHub emails it to you with the full article. Nothing the AI writes goes live without this step.
+   - **Merge** to publish (live about 2 minutes later).
+   - **Close** to discard.
+   - No new draft is written while one is waiting.
 
 If every provider fails, the run is marked failed and GitHub emails you. The site is not touched.
 
@@ -57,7 +55,6 @@ If every provider fails, the run is marked failed and GitHub emails you. The sit
 |---|---|
 | Pause the AI | `config.yml` → `enabled: false` |
 | Change how often | `config.yml` → `every_days` |
-| Skip approval | `config.yml` → `mode: auto` |
 | Get a post right now | Actions → **Blog** → Run workflow → "write a post now" |
 | Write a post myself | Add `blog/_src/posts/<slug>.md` (copy an existing one's header), push |
 | Schedule a post | Give it a future `date`; it publishes on that day |

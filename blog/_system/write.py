@@ -304,7 +304,7 @@ def main() -> int:
     if not args.force:
         if not auto.get("enabled", True):
             return finish("skipped", reason="autopilot is turned off in config.yml")
-        if os.environ.get("BLOG_PENDING_DRAFT") == "1" and auto.get("mode", "review") != "auto":
+        if os.environ.get("BLOG_PENDING_DRAFT") == "1":
             return finish("skipped", reason="a draft is still waiting for review")
     posts = [p for p in load_posts() if not p.draft]
     newest = max((p.date for p in posts), default=None)

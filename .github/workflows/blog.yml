@@ -7,7 +7,7 @@ on:
     branches: [main]
     paths: ['blog/_src/**', 'blog/_system/**']   # a post was added/edited/merged, or the settings changed
   schedule:
-    - cron: '0 0 * * *'                          # every day 05:00 Pakistan time (00:00 UTC): publish scheduled posts, write one if due
+    - cron: '37 23 * * *'                        # every day 04:37 Pakistan time (23:37 UTC; off the busy top of the hour): publish scheduled posts, write one if due
   workflow_dispatch:
     inputs:
       task:
@@ -18,7 +18,7 @@ on:
 
 permissions:
   contents: write        # commit generated blog pages
-  pull-requests: write   # open the review pull request
+  pull-requests: write   # open the review pull request (every AI post goes through one)
   pages: write           # ask GitHub Pages to redeploy after a commit
 
 concurrency:
@@ -51,8 +51,9 @@ jobs:
         if: steps.present.outputs.yes
         run: |
           pip install -r blog/_system/requirements.txt
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # commits are made as the repo owner, so the owner is the only contributor
+          git config user.name "Salman Ali Rafeeq"
+          git config user.email "${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com"
           cat > "$RUNNER_TEMP/commit.sh" <<'EOF'
           # usage: commit.sh "message" — commit and push blog changes to the current branch, never anything else
           set -e
@@ -90,17 +91,12 @@ jobs:
             echo "status=$(jq -r .status "$RUNNER_TEMP/result.json")"
             echo "slug=$(jq -r '.slug // ""' "$RUNNER_TEMP/result.json")"
             echo "title=$(jq -r '.title // ""' "$RUNNER_TEMP/result.json")"
-            echo "mode=$(python -c "import yaml; print(yaml.safe_load(open('blog/_system/config.yml'))['autopilot']['mode'])")"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Publish the new post now (mode auto)
-        if: steps.write.outputs.status == 'written' && steps.write.outputs.mode == 'auto'
-        run: |
-          python blog/_system/build.py
-          bash "$RUNNER_TEMP/commit.sh" "Blog: publish ${{ steps.write.outputs.slug }}"
-
-      - name: Send the new post for review (mode review)
-        if: steps.write.outputs.status == 'written' && steps.write.outputs.mode != 'auto'
+      # An AI post never goes live on its own: it always arrives as a pull request assigned to the owner
+      # (GitHub emails it). Merging it is the only way it gets published.
+      - name: Send the new post for review
+        if: steps.write.outputs.status == 'written'
         env:
           SLUG: ${{ steps.write.outputs.slug }}
           TITLE: ${{ steps.write.outputs.title }}
