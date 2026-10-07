@@ -56,6 +56,7 @@ If every provider fails, the run is marked failed and GitHub emails you. The sit
 | Pause the AI | `config.yml` → `enabled: false` |
 | Change how often | `config.yml` → `every_days` |
 | Get a post right now | Actions → **Blog** → Run workflow → "write a post now" |
+| Check the AI keys work | Actions → **Blog** → Run workflow → "test AI keys" (writes nothing) |
 | Write a post myself | Add `blog/_src/posts/<slug>.md` (copy an existing one's header), push |
 | Schedule a post | Give it a future `date`; it publishes on that day |
 | Fix a typo | Edit the `.md` file and push. Pages, listing and sitemap update |

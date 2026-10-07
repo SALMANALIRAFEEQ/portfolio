@@ -304,6 +304,29 @@ def pr_body(post: Post, warnings: list, provider: str, model: str, owner: str) -
 """[:60000]
 
 
+def check_keys(cfg: dict) -> int:
+    """Test every provider and model in config.yml. Fails if a provider has no key or none of its models answer."""
+    broken = 0
+    for p in cfg["providers"]:
+        name, key = p["name"], KEY_ENV.get(p["name"], "")
+        if not os.environ.get(key):
+            print(f"{name}: NO KEY (add the {key} repository secret)")
+            broken += 1
+            continue
+        working = 0
+        for model in p["models"]:
+            try:
+                reply = ask(name, model, "You are a connection test.", "Reply with the single word OK.").strip()
+                print(f"{name} / {model}: ok (replied {reply[:20]!r})")
+                working += 1
+            except LLMError as e:
+                print(f"{name} / {model}: FAILED {str(e)[:200]}")
+        if not working:
+            broken += 1
+    print("Result: " + ("all providers work" if not broken else f"{broken} provider(s) not working"))
+    return 1 if broken else 0
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -311,9 +334,12 @@ def main() -> int:
     ap.add_argument("--today", type=dt.date.fromisoformat)
     ap.add_argument("--result", type=Path)
     ap.add_argument("--pr-body", type=Path)
+    ap.add_argument("--check-keys", action="store_true", help="send each model a tiny test prompt; writes nothing")
     args = ap.parse_args()
 
     cfg = load_config()
+    if args.check_keys:
+        return check_keys(cfg)
     day = args.today or today(cfg)
     auto = cfg["autopilot"]
 
