@@ -323,6 +323,19 @@ def check_keys(cfg: dict) -> int:
                 print(f"{name} / {model}: FAILED {str(e)[:200]}")
         if not working:
             broken += 1
+        try:   # what this key can use, to pick replacements in config.yml when a model is retired
+            if name == "groq":
+                req = urllib.request.Request("https://api.groq.com/openai/v1/models", headers={
+                    "Authorization": f"Bearer {os.environ[key]}", "User-Agent": "portfolio-blog-autopilot/1.0"})
+                ids = [m["id"] for m in json.loads(urllib.request.urlopen(req, timeout=30).read())["data"]]
+            else:
+                req = urllib.request.Request("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",
+                                             headers={"x-goog-api-key": os.environ[key]})
+                ids = [m["name"].removeprefix("models/") for m in json.loads(urllib.request.urlopen(req, timeout=30).read())["models"]
+                       if "generateContent" in m.get("supportedGenerationMethods", []) and "flash" in m["name"]]
+            print(f"    {name} models available: {', '.join(sorted(ids))}")
+        except Exception as e:  # listing is only a hint; never fail the check because of it
+            print(f"    {name} models: could not list ({str(e)[:80]})")
     print("Result: " + ("all providers work" if not broken else f"{broken} provider(s) not working"))
     return 1 if broken else 0
 
