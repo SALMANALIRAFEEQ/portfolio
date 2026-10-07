@@ -11,7 +11,7 @@ autopilot:
   # Every new post arrives as a pull request (GitHub emails it to you); press "Merge" to publish,
   # close it to discard. Nothing the AI writes goes live without your approval.
   # No new draft is written while one is waiting.
-  # The check runs every day at 04:37 Pakistan time (23:37 UTC); see the cron line in .github/workflows/blog.yml.
+  # The check runs every day at 04:37 Pakistan time, with backups at 09:37 and 14:37 (cron lines in .github/workflows/blog.yml).
 
 # ----- AI providers, tried in this order. If one fails or hits its free limit, the next one is used. -----
 # Keys are NOT stored here: add them in GitHub → Settings → Secrets and variables → Actions:

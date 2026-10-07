@@ -33,7 +33,7 @@ The only blog code in the portfolio is the Blog link in `index.html`, between `B
 Until the keys exist, the daily run only rebuilds pages and skips writing. Nothing fails.
 
 ## How it runs
-Every day at 04:37 Pakistan time:
+Every day at 04:37 Pakistan time (GitHub often starts it a few hours late), with backup runs at 09:37 and 14:37 in case it fails:
 1. **Publish due posts:** a post goes live when `draft: false` and its `date` has arrived. Future dates wait.
 2. **Write a new post if due:** a new post is due when the newest post is at least `every_days` old.
    - The AI picks a new topic, never repeating one, and balances categories.
@@ -42,13 +42,13 @@ Every day at 04:37 Pakistan time:
      - no client names
      - only safe links
      - correct length, FAQ section and SEO fields
-   - A failed check gets one rewrite. If a model still fails, the next model or provider is tried.
+   - Common AI clichés ("delve", "game-changer", "in conclusion") are swapped for plain words automatically. Any other failed check gets up to two rewrites. If a model still fails, the next model or provider is tried. A busy provider is retried twice (after 30s and 60s) first.
 3. **You approve every new post:** a pull request is opened, assigned to you, and GitHub emails it to you with the full article. Nothing the AI writes goes live without this step.
    - **Merge** to publish (live about 2 minutes later).
    - **Close** to discard.
    - No new draft is written while one is waiting.
 
-If every provider fails, the run is marked failed and GitHub emails you. The site is not touched.
+If every provider fails, the run is marked failed and GitHub emails you. The site is not touched, and the next backup run tries again.
 
 ## Everyday controls
 | I want to… | Do this |

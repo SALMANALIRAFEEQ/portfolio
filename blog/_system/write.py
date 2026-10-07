@@ -25,6 +25,7 @@ from common import (POSTS_DIR, SYSTEM_DIR, Post, check_post, front_matter_text, 
                     load_config, load_posts, render_post, slugify, today)
 
 KEY_ENV = {"gemini": "GEMINI_API_KEY", "groq": "GROQ_API_KEY"}
+REPAIRS = 2   # how many times a model may rewrite its work after failing the checks
 
 
 class LLMError(Exception):
@@ -94,13 +95,14 @@ def ask(provider: str, model: str, system: str, user: str, want_json: bool = Fal
             raise LLMError("mock: " + reply["error"])
         return reply if isinstance(reply, str) else json.dumps(reply)
     fn = {"gemini": ask_gemini, "groq": ask_groq}[provider]
-    for attempt in range(2):
+    waits = [30, 60]   # free tiers return 429/503 when busy; wait and retry, then let the caller move on
+    for attempt in range(len(waits) + 1):
         try:
             return fn(model, system, user, want_json)
         except LLMError as e:
-            # Free tiers return 429 when busy; one short wait, then let the caller move on to the next model
-            if attempt == 0 and re.search(r"HTTP (429|500|502|503|504)", str(e)):
-                time.sleep(20)
+            if attempt < len(waits) and re.search(r"HTTP (429|500|502|503|504)", str(e)):
+                print(f"    busy ({str(e)[:8]}), retrying in {waits[attempt]}s …")
+                time.sleep(waits[attempt])
                 continue
             raise
     raise LLMError("unreachable")
@@ -117,8 +119,29 @@ def parse_json(text: str) -> dict:
         raise LLMError("reply was not valid JSON") from None
 
 
+# Common AI clichés swapped for plain words, so one stray word doesn't sink a good article.
+# Phrases that need a real rewrite (e.g. "look no further") are still left to the checks.
+PLAIN_WORDS = [
+    (r"\bin conclusion,\s*(\w)", lambda m: m.group(1).upper() if m.group(0)[0].isupper() else m.group(1)),
+    (r"\bin conclusion\b", "to sum up"),
+    (r"\bdelve(?=\s+(?:into|deeper))", "dig"),
+    (r"\bdelve\b", "dig in"),
+    (r"\bgame[- ]changers\b", "turning points"),
+    (r"\bgame[- ]changer\b", "turning point"),
+    (r"\bunlock the (?:full )?(?:power|potential) of\b", "get the most out of"),
+]
+
+
+def plain_words(text: str) -> str:
+    for pattern, plain in PLAIN_WORDS:
+        if isinstance(plain, str):
+            plain = (lambda w: lambda m: w[:1].upper() + w[1:] if m.group(0)[:1].isupper() else w)(plain)
+        text = re.sub(pattern, plain, text, flags=re.I)
+    return text
+
+
 def clean_body(text: str) -> str:
-    text = text.strip()
+    text = plain_words(text.strip())
     text = re.sub(r"^```(?:markdown|md)?\s*\n(.*)\n```$", r"\1", text, flags=re.S)   # model wrapped it in a code fence
     text = re.sub(r"^---\n.*?\n---\n", "", text, flags=re.S)                            # model added front matter anyway
     text = re.sub(r"^# [^\n]*\n+", "", text)                                            # model added an h1 anyway
@@ -197,7 +220,7 @@ def fix_prompt(kind: str, previous: str, errors: list) -> str:
 
 def meta_from_topic(topic: dict, cfg: dict, day: dt.date) -> dict:
     keys = ["title", "seo_title", "short_title", "description", "dek", "slug", "category", "tags", "keywords"]
-    meta = {k: topic.get(k) for k in keys}
+    meta = {k: plain_words(v) if isinstance(v, str) and k != "slug" else v for k, v in ((k, topic.get(k)) for k in keys)}
     meta["slug"] = re.sub(r"[^a-z0-9-]+", "-", str(meta.get("slug") or "").lower()).strip("-")
     meta.update(date=day, updated=day, author=cfg["site"]["author"], draft=False)
     return meta
@@ -225,30 +248,29 @@ def check_meta(meta: dict, cfg: dict, taken: set) -> list:
 def generate(cfg: dict, provider: str, model: str, posts: list[Post], day: dt.date) -> tuple[Post, list]:
     system, taken = system_prompt(cfg), {p.slug for p in posts}
 
-    # 1. topic + details (one repair round)
-    raw = ask(provider, model, system, topic_prompt(cfg, posts), want_json=True)
-    topic = parse_json(raw)
-    meta = meta_from_topic(topic, cfg, day)
-    errors = check_meta(meta, cfg, taken)
-    if errors:
-        print("    details need fixing: " + "; ".join(errors))
-        topic = parse_json(ask(provider, model, system, fix_prompt("details", json.dumps(topic), errors), want_json=True))
+    # 1. topic + details (up to REPAIRS repair rounds)
+    topic = parse_json(ask(provider, model, system, topic_prompt(cfg, posts), want_json=True))
+    for round_no in range(REPAIRS + 1):
         meta = meta_from_topic(topic, cfg, day)
         errors = check_meta(meta, cfg, taken)
-        if errors:
+        if not errors:
+            break
+        print("    details need fixing: " + "; ".join(errors))
+        if round_no == REPAIRS:
             raise LLMError("details still break the rules: " + "; ".join(errors))
+        topic = parse_json(ask(provider, model, system, fix_prompt("details", json.dumps(topic), errors), want_json=True))
     print(f"    topic: {meta['title']}  [{meta['category']}]")
 
-    # 2. article (one repair round)
+    # 2. article (up to REPAIRS repair rounds)
     outline = topic.get("outline") or []
     body = clean_body(ask(provider, model, system, article_prompt(cfg, meta, outline, posts)))
-    for round_no in range(2):
+    for round_no in range(REPAIRS + 1):
         post = render_post(Post(POSTS_DIR / f"{meta['slug']}.md", meta, body), cfg["site"]["base_url"])
         errors, warnings = check_post(post, cfg, strict=True, known_slugs=taken)
         if not errors:
             return post, warnings
         print(f"    article needs fixing ({post.words} words): " + "; ".join(errors))
-        if round_no == 0:
+        if round_no < REPAIRS:
             body = clean_body(ask(provider, model, system, fix_prompt("article", body, errors)))
     raise LLMError("article still breaks the rules: " + "; ".join(errors))
 

@@ -8,6 +8,8 @@ on:
     paths: ['blog/_src/**', 'blog/_system/**']   # a post was added/edited/merged, or the settings changed
   schedule:
     - cron: '37 23 * * *'                        # every day 04:37 Pakistan time (23:37 UTC; off the busy top of the hour): publish scheduled posts, write one if due
+    - cron: '37 4 * * *'                         # backup 09:37 PKT: retries if the morning run failed (skips if a draft is waiting or today's post exists)
+    - cron: '37 9 * * *'                         # backup 14:37 PKT, same rules
   workflow_dispatch:
     inputs:
       task:
