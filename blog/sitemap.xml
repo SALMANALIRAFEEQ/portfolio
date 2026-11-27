@@ -3,7 +3,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://salmanalirafeeq.github.io/portfolio/blog/</loc>
-    <lastmod>2026-11-26</lastmod>
+    <lastmod>2026-11-27</lastmod>
+  </url>
+  <url>
+    <loc>https://salmanalirafeeq.github.io/portfolio/blog/fix-wordpress-not-sending-emails/</loc>
+    <lastmod>2026-11-27</lastmod>
   </url>
   <url>
     <loc>https://salmanalirafeeq.github.io/portfolio/blog/how-to-create-coupons-in-woocommerce/</loc>
